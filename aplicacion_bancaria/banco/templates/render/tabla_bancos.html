@@ -1,0 +1,36 @@
+<table class="table table-striped table-bordered tabla_bancos" cellspacing="0" width="100%">
+	<thead>
+		<tr>
+			<th>Código</th>
+			<th>Nombre</th>
+			<th>Dirección</th>
+			<th>Observaciones</th>
+			<th>Fecha registro</th>
+			<th>Usuario registro</th>
+			{% if  perms.banco.delete_banco %}
+				<th>Opciones</th>
+			{% endif %}
+		</tr>
+	</thead>
+	<tbody>
+		{% for banco in bancos %}
+			<tr>
+				<td>{{banco.codigo}}</td>
+				<td>
+					<a href="{% url 'clientes' %}?banco={{banco.id}}"><i class="fa fa-external-link"></i> {{banco.nombre}}</a>
+				</td>
+				<td>{{banco.direccion}}</td>
+				<td>{{banco.observaciones|default:""}}</td>
+				<td>{{banco.fecha_registro}}</td>
+				<td>{{banco.usuario_registro}}</td>
+				<td style="width:100px">
+					<div class="btn-group btn-group-xs">
+					{% if perms.banco.delete_banco %}
+						<a data-eliminar-banco="{{banco.id}}" data-nombre="{{banco}}" class="btn btn-danger"><i class="fa fa-times"></i> Eliminar</a>
+					{% endif %}
+					</div>
+				</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>

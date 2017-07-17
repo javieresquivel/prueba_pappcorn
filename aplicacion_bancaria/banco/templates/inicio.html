@@ -1,0 +1,212 @@
+{% extends "layout.html" %}
+{% load filtros_usuarios %}
+{% block titulo %}
+	Inicio
+{% endblock titulo %}
+{% block css %}
+	<link href="/static/assets/libs/jquery-datatables/css/dataTables.bootstrap.css" rel="stylesheet" type="text/css" />
+	<link href="/static/assets/libs/jquery-datatables/extensions/TableTools/css/dataTables.tableTools.css" rel="stylesheet" type="text/css" />
+{% endblock css %}
+{% block contenido %}
+	<div class="page-heading">
+		<h1>
+			<i class="fa fa-university" aria-hidden="true"></i> Bancos
+			{% if perms.banco.add_banco %}
+				<a data-toggle="modal" data-target="#modal_agregar_banco" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Agregar nuevo Banco</a>
+			{% endif %}
+		</h1>
+	</div>
+
+	<div class="widget">
+		<div class="widget-header">
+			<h2><strong>Listado de bancos registrados</strong></h2>
+		</div>
+		<div class="widget-content">
+			<div class="table-responsive" id="conteneder_tabla">
+				{% include "render/tabla_bancos.html" %}
+			</div>
+		</div>
+	</div>
+	
+	<form id="formulario_guardar_banco" method="post" action="">
+		{% csrf_token %}
+		<input type="hidden" name="agregar_banco" value="true">
+		<div id="modal_agregar_banco" class="modal fade" tabindex="-1" role="dialog">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title">Agregar nuevo banco</h4>
+					</div>
+					<div class="modal-body">
+						<div class="alert alert-danger" style="display:none"></div>
+						<div class="row">
+							<div class="col-sm-4">
+								<label for="{{formulario.codigo.id_for_label}}">{{formulario.codigo.label_tag}}*</label>
+								{{formulario.codigo|addclass:"form-control"}}
+							</div>
+							<div class="col-sm-8">
+								<label for="{{formulario.nombre.id_for_label}}">{{formulario.nombre.label_tag}}*</label>
+								{{formulario.nombre|addclass:"form-control"}}
+							</div>
+						</div>
+						<br>
+						<label for="{{formulario.direccion.id_for_label}}">{{formulario.direccion.label_tag}}*</label>
+						{{formulario.direccion|addclass:"form-control"}}
+						<br>
+						<label for="{{formulario.observaciones.id_for_label}}">{{formulario.observaciones.label_tag}}</label>
+						{{formulario.observaciones|addAttrs:"class,form-control;rows,3"}}
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+						<button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Guardar</button>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+	</form>
+
+
+	<div id="modal_eliminar_banco" class="modal fade" tabindex="-1" role="dialog">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Eliminar banco</h4>
+				</div>
+				<div class="modal-body">
+					
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+					<button type="button" class="btn btn-danger"><i class="fa fa-ban"></i> Eliminar</button>
+				</div>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+{% endblock contenido %}
+{% block js %}
+	<script src="/static/assets/libs/jquery-datatables/js/jquery.dataTables.min.js"></script>
+	<script src="/static/assets/libs/jquery-datatables/js/dataTables.bootstrap.js"></script>
+	<script src="/static/assets/libs/jquery-datatables/extensions/TableTools/js/dataTables.tableTools.min.js"></script>
+	<script type="text/javascript">
+
+		$(document).on('click', 'a[data-eliminar-banco]', function(event) {
+			var banco = $(this).attr('data-eliminar-banco');
+			var nombre = $(this).attr('data-nombre');
+			$("#modal_eliminar_banco").modal("show");
+			$("#modal_eliminar_banco .modal-body").html("¿Está seguro que desea eliminar el banco "+nombre+" ?");
+			$("#modal_eliminar_banco .modal-footer .btn-danger").attr('data-eliminar-banco-final', banco);
+		});
+
+		$(document).on('click', 'button[data-eliminar-banco-final]', function(event) {
+			var banco = $(this).attr('data-eliminar-banco-final');
+			$.ajax({
+				url: '{% url "bancos" %}',
+				type: 'POST',
+				dataType: 'html',
+				data: {"eliminar_banco":banco},
+				success:function(data) {
+					$("#modal_eliminar_banco").modal("hide");
+					tabla_bancos.destroy();
+					$("#conteneder_tabla").html(data);
+					tabla_bancos = $(".tabla_bancos").DataTable(configuracion_datatables);
+				},
+				error:function(data) {
+					alert("Error al realizar operacion");
+				}
+			});
+		});
+
+		$(document).on('click', '[data-dismiss="modal"]', function(event) {
+			inicializar_form();
+		});
+
+		function agregar_banco_success(data) {
+			$("#modal_agregar_banco .alert").removeClass('alert-danger');
+			$("#modal_agregar_banco .alert").addClass('alert-success');
+			$("#modal_agregar_banco .alert").html(data);
+			$("#modal_agregar_banco .alert").show();
+		}
+		function agregar_banco_error(data) {
+			$("#modal_agregar_banco .alert").removeClass('alert-success');
+			$("#modal_agregar_banco .alert").addClass('alert-danger');
+			$("#modal_agregar_banco .alert").html(data);
+			$("#modal_agregar_banco .alert").show();
+		}
+		function inicializar_form() {
+			$("#modal_agregar_banco input").val("");
+			$("#modal_agregar_banco textarea").val("");
+			$("#modal_agregar_banco input").change();
+		}
+
+		$("#formulario_guardar_banco").on('submit', function(event) {
+			event.preventDefault();
+			var formulario = $(this).serialize();
+			$.ajax({
+				url: '{% url "bancos" %}',
+				type: 'POST',
+				dataType: 'html',
+				data: formulario,
+				success:function(data) {
+					inicializar_form();
+					$("#modal_agregar_banco").modal("hide");
+					tabla_bancos.destroy();
+					$("#conteneder_tabla").html(data);
+					tabla_bancos = $(".tabla_bancos").DataTable(configuracion_datatables);
+				},
+				error:function(data) {
+					agregar_banco_error(data["mensaje"]);
+				}
+			});
+		});
+
+		$(document).on('change', '#modal_agregar_banco input[name=codigo]', function(event) {
+			$("#modal_agregar_banco .alert").hide();
+			var codigo = $('#modal_agregar_banco input[name=codigo]').val();
+			if(codigo){
+				$.ajax({
+					url: '{% url "bancos" %}',
+					type: 'POST',
+					dataType: 'html',
+					data: {'validar_codigo': codigo},
+					success:function(data) {
+						agregar_banco_success(data);
+					},
+					error:function(data) {
+						agregar_banco_error(data.responseText);
+					}
+				});
+			}
+		});			
+
+		$("#link_bancos").addClass('active');
+		var configuracion_datatables= {"language": {
+	            "emptyTable":     "No hay registros",
+	            "info":           "Mostrando _START_ a _END_ de _TOTAL_ registros",
+	            "infoEmpty":      "Mostrando 0 a 0 de 0 registros",
+	            "infoFiltered":   "(Filtrado de _MAX_ de los registros totales)",
+	            "infoPostFix":    "",
+	            "thousands":      ",",
+	            "lengthMenu":     "Mostrando _MENU_ registros",
+	            "loadingRecords": "Cargando...",
+	            "processing":     "Procesando...",
+	            "search":         "Buscar:",
+	            "zeroRecords":    "No se encontraron resultados",
+	            "paginate": {
+	                "first":      "Primero",
+	                "last":       "Último",
+	                "next":       "Siguiente",
+	                "previous":   "Anterior"
+	            },
+	            "aria": {
+	                "sortAscending":  ": activate to sort column ascending",
+	                "sortDescending": ": activate to sort column descending"
+	            }
+	        },
+	        "order":[[1,"desc"]]
+	    	};
+
+		var tabla_bancos = $(".tabla_bancos").DataTable(configuracion_datatables);
+	</script>
+{% endblock js %}	

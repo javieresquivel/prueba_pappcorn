@@ -12,7 +12,7 @@ class Autenticacion(View):
 
 	def get(self,request):
 		if request.user.is_authenticated():
-			return HttpResponseRedirect('/eventos/home/')
+			return HttpResponseRedirect('/bancos/')
 		formulario = FormIniciarSesion()
 		return render(request, self.TEMPLATE_LOGIN, locals())
 
@@ -25,7 +25,7 @@ class Autenticacion(View):
 				if 'next' in request.GET:
 					return HttpResponseRedirect(request.GET['next'])
 				else:
-					return HttpResponseRedirect('/eventos/home/')
+					return HttpResponseRedirect('/bancos/')
 			mensaje_error = 'Clave incorrecta'
 		return render(request, self.TEMPLATE_LOGIN, locals())
 

@@ -1,0 +1,154 @@
+{% extends "layout.html" %}
+{% load filtros_usuarios %}
+{% block titulo %}
+	Clientes de {{banco}}
+{% endblock titulo %}
+{% block contenido %}
+	<ol class="breadcrumb">
+	  <li><a href="/">bancos</a></li>
+	  <li><a href="{% url 'clientes' %}?banco={{banco.id}}">Clientes de {{banco}}</a></li>
+	  <li class="active">Agregar nuevo cliente</li>
+	</ol>
+
+	<div class="page-heading">
+		<h1>
+			<i class="fa fa-users" aria-hidden="true"></i> Agregar nuevo cliente
+		</h1>
+	</div>
+	{% if formulario.errors %}
+		<div class="alert alert-danger">
+			<strong><i class="fa fa-info-circle"></i> Atención!. </strong>Se han detectado los siguientes inconvenientes: <br>
+			{{formulario.errors}}
+		</div>
+	{% endif %}
+	<form method="post" action="">
+		{% csrf_token %}
+		<div class="row">
+			<div class="col-sm-12">
+				<button type="submit" class="btn btn-primary pull-right"><i class="fa fa-save"></i> Guardar</button>
+			</div>
+		</div>
+		<div class="widget">
+			<div class="widget-header">
+				<h2>
+					<strong>Favor complete el siguiente formulario</strong>
+				</h2>
+			</div>
+			<div class="widget-content padding">
+				<div class="row">
+					<div class="col-sm-3">
+						<label for="{{formulario.documento.id_for_label}}">{{formulario.documento.label_tag}}*</label>
+						{{formulario.documento|addclass:"form-control"}}
+					</div>
+					<div class="col-sm-6">
+						<label for="{{formulario.nombre.id_for_label}}">{{formulario.nombre.label_tag}}*</label>
+						{{formulario.nombre|addclass:"form-control"}}
+					</div>
+					<div class="col-sm-3">
+						<label for="{{formulario.fecha_nacimiento.id_for_label}}">{{formulario.fecha_nacimiento.label_tag}}*</label>
+						{{formulario.fecha_nacimiento|addclass:"form-control"}}
+					</div>
+				</div>
+				<br>
+				<div class="row">
+					<div class="col-sm-12">
+						<label for="{{formulario.direccion.id_for_label}}">{{formulario.direccion.label_tag}}*</label>
+						{{formulario.direccion|addclass:"form-control"}}
+					</div>
+				</div>
+				<br>
+				<div class="row">
+					<div class="col-sm-12">
+						<label for="{{formulario.observaciones.id_for_label}}">{{formulario.observaciones.label_tag}}</label>
+						{{formulario.observaciones|addAttrs:"class,form-control;rows,3"}}
+					</div>
+				</div>
+			</div>
+		</div>
+		{{formulario.cuentas}}
+		<div class="widget">
+			<div class="widget-header">
+				<h2><strong>Cuentas</strong></h2>
+			</div>
+			<div class="widget-content">
+				<table id="tabla_cuentas_clientes" class="table table-bordered table-condensed">
+					<thead>
+						<tr>
+							<th>Tipo de cuenta</th>
+							<th>Número cuenta</th>
+							<th>Número Tarjeta débito</th>
+							<th style="width:100px;text-align:center"><i class="fa fa-gear"></i></th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+					<tfoot>
+						<tr>
+							<td>
+								{{formulario.tipo_cuenta|addclass:"form-control"}}
+							</td>
+							<td>
+								<input type="text" name="numero_cuenta" class="form-control">
+							</td>
+							<td>
+								<input type="text" name="numero_tarjeta" class="form-control">
+							</td>
+							<td>
+								<a id="agregar_cuenta_cliente" class="btn btn-default btn-sm"><i class="fa fa-plus"></i> Agregar cuenta</a>
+							</td>
+						</tr>
+					</tfoot>
+				</table>
+			</div>
+		</div>
+	</form>
+
+
+{% endblock contenido %}
+
+{% block js %}
+	<script type="text/javascript">
+		var diccionario_cuentas = JSON.parse($("input[name=cuentas]").val() || "[]");
+
+		function dibujar_cuentas_registradas() {
+			var html = "";
+			for (var i = 0; i < diccionario_cuentas.length; i++) {
+				html += '<tr>';
+				html += '<td>'+diccionario_cuentas[i]["nombre_tipo_cuenta"]+'</td>';
+				html += '<td>'+diccionario_cuentas[i]["numero_cuenta"]+'</td>';
+				html += '<td>'+diccionario_cuentas[i]["numero_tarjeta"]+'</td>';
+				html += '<td><a data-eliminar-cuenta="'+i+'" class="btn btn-sm btn-danger"><i class="fa fa-times"></i> Eliminar cuenta</a></td>';
+				html += '</tr>';
+			}
+			$("#tabla_cuentas_clientes tbody").html(html);
+			$("#tabla_cuentas_clientes tfoot input").val("");
+			$("input[name=cuentas]").val(JSON.stringify(diccionario_cuentas));
+		}
+
+		dibujar_cuentas_registradas();
+
+		$(document).on('click', 'a[data-eliminar-cuenta]', function(event) {
+			var cuenta = $(this).attr('data-eliminar-cuenta');
+			diccionario_cuentas.splice(parseInt(cuenta),1);
+			dibujar_cuentas_registradas();
+		});
+
+		$("#agregar_cuenta_cliente").on('click', function(event) {
+			var tipo_cuenta = $("select[name=tipo_cuenta]").val();
+			var numero_cuenta = $("input[name=numero_cuenta]").val();
+			var numero_tarjeta = $("input[name=numero_tarjeta]").val();
+			if(tipo_cuenta && numero_cuenta && numero_tarjeta){
+				diccionario_cuentas.push({
+					"nombre_tipo_cuenta": $("select[name=tipo_cuenta] > option[value="+tipo_cuenta+"]").text(),
+					"tipo_cuenta":tipo_cuenta,
+					"numero_cuenta":numero_cuenta,
+					"numero_tarjeta":numero_tarjeta
+				});
+				dibujar_cuentas_registradas();
+			}else{
+				alert("Tipo de cuenta, numero de cuenta y numero de tarjeta son campos obligatorios");
+			}
+		});
+
+		$("#link_bancos").addClass('active');
+	</script>
+{% endblock js %}

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block titulo %}{% endblock titulo %} | Banco</title>   
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="description" content="">
+        <meta name="keywords" content="coco bootstrap template, coco admin, bootstrap,admin template, bootstrap admin,">
+        <meta name="author" content="Huban Creative">
+
+        <!-- Base Css Files -->
+        <link href="/static/assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" type="text/css" />
+        <link href="/static/assets/libs/animate-css/animate.min.css" rel="stylesheet" />
+        <link href="/static/assets/libs/pace/pace.css" rel="stylesheet" />
+        <link href="/static/assets/libs/fontello/css/fontello.css" rel="stylesheet" />
+        <!-- Code Highlighter for Demo -->
+        <link href="/static/assets/libs/prettify/github.css" rel="stylesheet" />
+        
+                <!-- Extra CSS Libraries Start -->
+                <link href="/static/assets/css/style.css" rel="stylesheet" type="text/css" />
+                {% block css %}{% endblock css %}
+                <!-- Extra CSS Libraries End -->
+        <link href="/static/assets/css/style-responsive.css" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+        <link href="/static/css/custom.css" rel="stylesheet" />
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+    </head>
+    <body class="fixed-left">
+        
+   
+    <!-- Begin page -->
+    <div id="wrapper">
+        
+<!-- Top Bar Start -->
+<div class="topbar">
+    <div class="topbar-left">
+        <div class="logo">
+            
+        </div>
+        <button class="button-menu-mobile open-left">
+        <i class="fa fa-bars"></i>
+        </button>
+    </div>
+    <!-- Button mobile view to collapse sidebar menu -->
+    <div class="navbar navbar-default" role="navigation">
+        <div class="container">
+            <div class="navbar-collapse2">
+                <ul class="nav navbar-nav navbar-right top-navbar">
+                   <li class="dropdown iconify hide-phone">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-globe"></i> <!--<span class="label label-danger absolute">4</span>--></a>
+                        <ul class="dropdown-menu dropdown-message">
+                            <li class="dropdown-header notif-header"><i class="icon-bell-2"></i> Nuevas notificaciones<a class="pull-right" href="#"><i class="fa fa-cog"></i></a></li>
+                            <!--<li class="unread">
+                                <a href="#">
+                                    <p><strong>John Doe</strong> Uploaded a photo <strong>&#34;DSC000254.jpg&#34;</strong>
+                                        <br /><i>2 minutes ago</i>
+                                    </p>
+                                </a>
+                            </li>-->
+                            <li class="dropdown-footer">
+                                <div class="btn-group btn-group-justified">
+                                    <div class="btn-group">
+                                        <a href="#" class="btn btn-sm btn-danger"><i class="icon-trash-3"></i> Limpiar</a>
+                                    </div>
+                                    <div class="btn-group">
+                                        <a href="#" class="btn btn-sm btn-success">Ver todas <i class="icon-right-open-2"></i></a>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </li>
+                   
+                    <li class="dropdown iconify hide-phone"><a href="#" onclick="javascript:toggle_fullscreen()"><i class="icon-resize-full-2"></i></a></li>
+                    <li class="dropdown topbar-profile">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"> <strong>{{usuario_sistema.username}}</strong> <i class="fa fa-caret-down"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Cambiar contraseña</a></li>
+                            <li class="divider"></li>
+                            <li><a class="md-trigger" data-modal="logout-modal"><i class="icon-logout-1"></i> Cerrar sesión</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+<!-- Top Bar End -->
+            <!-- Left Sidebar Start -->
+        <div class="left side-menu">
+            <div class="sidebar-inner slimscrollleft">
+                <br><br>
+                <!--- Profile -->
+                <div class="profile-info">
+                    <div class="col-xs-4">
+                      <a href="#" class="rounded-image profile-image">
+                        {% if usuario_sistema.foto_xs %}
+                            <img src="/media/{{usuario_sistema.foto_xs}}">
+                        {% else %}
+                            <img src="/static/img/default-user.png">
+                        {% endif %}
+                      </a>
+                    </div>
+                    <div class="col-xs-8">
+                        <div class="profile-text">Bienvenido <b>{{usuario_sistema.get_full_name}}</b></div>
+                        <div class="profile-buttons">
+                          <!--<a href="javascript:;"><i class="fa fa-envelope-o pulse"></i></a>-->
+                          <a class="md-trigger" data-modal="logout-modal"><i class="fa fa-power-off text-red-1"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <!--- Divider -->
+                <div class="clearfix"></div>
+                <hr class="divider" />
+                <div class="clearfix"></div>
+                <!--- Divider -->
+                <div id="sidebar-menu">
+                    <ul>
+                        <li>
+                            <a id="link_bancos" href="/"><i class="fa fa-university" aria-hidden="true"></i><span>Bancos</span></a>
+                        </li>
+                        <li>
+                            <a id="link_transacciones" href="#"><i class="fa fa-exchange" aria-hidden="true"></i><span>Transacciones</span></a>
+                        </li>
+                    </ul>
+                </div>
+            <div class="clearfix"></div>
+            <div class="clearfix"></div><br><br><br>
+        </div>
+            <div class="left-footer">
+                <div class="progress progress-xs">
+                  <div class="progress-bar bg-green-1" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" style="width: 80%">
+                    <span class="progress-precentage">80%</span>
+                  </div>
+                  
+                  <a data-toggle="tooltip" title="See task progress" class="btn btn-default md-trigger" data-modal="task-progress"><i class="fa fa-inbox"></i></a>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Start right content -->
+        <div class="content-page">
+            <!-- ============================================================== -->
+            <!-- Start Content here -->
+            <!-- ============================================================== -->
+            <div class="content">
+                {% if messages %}
+                <div class="alert alert-info">
+                    <ul class="messages">
+                        {% for message in messages %}
+                        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                {% block contenido %}
+                    
+                {% endblock contenido %}
+                <!-- Footer Start -->
+                <footer>
+                    Javier Alejandro Esquivel Ávila &copy; 2017
+                </footer>
+            <!-- Footer End -->         
+            </div>
+            <!-- ============================================================== -->
+            <!-- End content here -->
+            <!-- ============================================================== -->
+
+        </div>
+        <!-- End right content -->
+
+    </div>
+	<!-- End of page -->
+	<!-- the overlay modal element -->
+    <div class="md-overlay"></div>
+    <!-- End of eoverlay modal -->
+    <script>
+        var resizefunc = [];
+    </script>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <script src="/static/assets/libs/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/static/assets/libs/jquery-detectmobile/detect.js"></script>
+    <script src="/static/assets/libs/pace/pace.min.js"></script>
+    <script src="/static/assets/libs/jquery-slimscroll/jquery.slimscroll.js"></script>
+    <!-- Demo Specific JS Libraries -->
+    <script src="/static/assets/libs/prettify/prettify.js"></script>
+    {% block js %}{% endblock js %}
+    <script src="/static/assets/js/init.js"></script>
+	</body>
+</html>

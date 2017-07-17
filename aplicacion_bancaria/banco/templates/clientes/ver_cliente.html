@@ -1,0 +1,126 @@
+{% extends "layout.html" %}
+{% load humanize %}
+{% block titulo %}
+	Ver cliente {{cliente}}
+{% endblock titulo %}
+{% block contenido %}
+	<ol class="breadcrumb">
+	  <li><a href="/">bancos</a></li>
+	  <li><a href="{% url 'clientes' %}?banco={{banco.id}}">Clientes de {{banco}}</a></li>
+	  <li class="active">Ver cliente {{cliente}}</li>
+	</ol>
+
+	<div class="page-heading">
+		<h1>
+			<i class="fa fa-users" aria-hidden="true"></i> {{cliente.documento}} - {{cliente}}
+		</h1>
+	</div>
+
+	<div class="widget">
+		<div class="widget-header">
+			<h2><strong>Detalles</strong></h2>
+		</div>
+		<div class="widget-content padding">
+			<div class="row">
+				<div class="col-sm-3">
+					<label>Nombre: </label><br>
+					{{cliente.nombre}}
+				</div>
+				<div class="col-sm-6">
+					<label>Dirección: </label><br>
+					{{cliente.direccion}}
+				</div>
+				<div class="col-sm-3">
+					<label>Fecha de nacimiento: </label><br>
+					{{cliente.fecha_nacimiento}}
+				</div>
+			</div>
+			<br>
+			<div class="row">
+				<div class="col-sm-3">
+					<label>Fecha registro: </label><br>
+					{{cliente.fecha_registro}}
+				</div>
+				<div class="col-sm-6">
+					<label>Usuario registro: </label><br>
+					{{cliente.usuario_registro}}
+				</div>
+			</div>
+			<br>
+			<div class="row">
+				<div class="col-sm-12">
+					<label>Observaciones</label><br>
+					{{cliente.observaciones|default:"Ninguna"}}
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+	<div class="widget">
+		<div class="widget-header">
+			<h2><strong>Cuentas</strong></h2>
+		</div>
+		<div class="widget-content">	
+			<table id="tabla_cuentas_clientes" class="table table-bordered table-condensed">
+				<thead>
+					<tr>
+						<th>Tipo de cuenta</th>
+						<th>Número cuenta</th>
+						<th>Fecha cuenta</th>
+						<th>Número Tarjeta débito</th>
+						<th>Fecha Tarjeta</th>
+						<th>Usuario registro</th>
+						<th>Saldo</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for cuenta in cliente.get_cuentas %}
+						<tr>
+							<td>{{cuenta.get_tipo_display}}</td>
+							<td>{{cuenta.numero_cuenta}}</td>
+							<td>{{cuenta.fecha_registro}}</td>
+							<td>{{cuenta.get_tarjeta_debito.numero}}</td>
+							<td>{{cuenta.get_tarjeta_debito.fecha_registro}}</td>
+							<td>{{cuenta.usuario_registro}}</td>
+							<td style="text-align:right">$ {{cuenta.get_saldo|default:"0"|intcomma}}</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<div class="widget">
+		<div class="widget-header">
+			<h2><strong>Historial de transacciones</strong></h2>
+		</div>
+		<div class="widget-content">	
+			{% if not cliente.get_transacciones %}
+				<div class="alert alert-info">
+					<strong><i class="fa fa-info-circle"></i> Atención!. </strong>No se han registrado transacciones para este cliente
+				</div>
+			{% else %}
+				<table id="tabla_cuentas_clientes" class="table table-bordered table-condensed">
+					<thead>
+						<tr>
+							<th>Tipo de cuenta</th>
+							<th>Número cuenta</th>
+							<th>Fecha cuenta</th>
+							<th>Número Tarjeta débito</th>
+							<th>Fecha Tarjeta</th>
+							<th>Usuario registro</th>
+							<th>Saldo</th>
+						</tr>
+					</thead>
+				</table>
+			{% endif %}
+		</div>
+	</div>
+{% endblock contenido %}
+
+{% block js %}
+	<script type="text/javascript">
+		$("#link_bancos").addClass('active');
+	</script>
+{% endblock js %}
