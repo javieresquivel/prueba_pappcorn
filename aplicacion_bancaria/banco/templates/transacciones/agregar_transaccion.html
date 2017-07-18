@@ -1,0 +1,78 @@
+{% extends "layout.html" %}
+{% load filtros_usuarios %}
+{% block titulo %}
+	Agregar nueva transacción
+{% endblock titulo %}
+{% block contenido %}
+	<div class="page-heading">
+		<h1>
+			<i class="fa fa-exchange" aria-hidden="true"></i> Agregar nueva transacción
+		</h1>
+	</div>
+	{% if formulario.errors %}
+		<div class="alert alert-danger">
+			<strong><i class="fa fa-info-circle"></i> Atención!. </strong>Se han detectado los siguientes inconvenientes: <br>
+			{{formulario.errors}}
+		</div>
+	{% endif %}
+	<form method="post" action="">
+		{% csrf_token %}
+		<div class="row">
+			<div class="col-sm-12">
+				<button type="submit" class="btn btn-primary pull-right"><i class="fa fa-save"></i> Guardar</button>
+			</div>
+		</div>
+		<div class="widget">
+			<div class="widget-header">
+				<h2><strong>Favor complete el siguente formulario</strong></h2>
+			</div>
+			<div class="widget-content padding">
+				<div class="row">
+					<div class="col-sm-6">
+						<label for="{{formulario.banco.id_for_label}}">{{formulario.banco.label_tag}}*</label>
+						{{formulario.banco|addclass:"form-control"}}
+					</div>
+					<div class="col-sm-6">
+						<label for="{{formulario.tipo.id_for_label}}">{{formulario.tipo.label_tag}}*</label>
+						{{formulario.tipo|addclass:"form-control"}}
+					</div>
+				</div>
+				<br>
+				<div class="row">
+					<div class="col-sm-6">
+						<label for="{{formulario.cuenta.id_for_label}}">{{formulario.cuenta.label_tag}}*</label>
+						{{formulario.cuenta|addclass:"form-control"}}
+					</div>
+					<div class="col-sm-6">
+						<label for="{{formulario.valor.id_for_label}}">{{formulario.valor.label_tag}}*</label>
+						{{formulario.valor|addclass:"form-control"}}
+					</div>
+				</div>
+				<br>
+				<div class="row" id="cuenta_destino" style="display:none">
+					<div class="col-sm-6">
+						<label for="{{formulario.cuenta_destino.id_for_label}}">{{formulario.cuenta_destino.label_tag}}*</label>
+						{{formulario.cuenta_destino|addclass:"form-control"}}
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
+{% endblock contenido %}
+{% block js %}
+	<script type="text/javascript">
+		const TRANSFERENCIA = 1;
+
+		$(document).on('change', 'select[name=tipo]', function(event) {
+			var tipo = parseInt($(this).val() || "0");
+			$("#cuenta_destino").hide();
+			if(tipo==TRANSFERENCIA){
+				$("#cuenta_destino").show();
+			}
+		});
+
+		$("select[name=tipo]").change();
+
+		$("#link_transacciones").addClass('active');
+	</script>
+{% endblock js %}

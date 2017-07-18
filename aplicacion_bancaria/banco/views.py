@@ -88,3 +88,22 @@ class ClientesView(View):
       if 'agregar' in request.GET and 'banco.add_cliente' in request.user.get_all_permissions():
          return self.agregar(request,banco)
       return HttpResponse("No posee los permisos para esta funcion",status=403)
+
+class TransaccionesView(View):
+
+   def agregar(self,request):
+      formulario = TransaccionForm(request.POST or None)
+      if formulario.is_valid():
+         pass
+      return render(request, 'transacciones/agregar_transaccion.html', locals())
+
+   def get(self,request):
+      if 'agregar' in request.GET:
+         return self.agregar(request)
+      transacciones = Transaccion.objects.filter(estado_registro=True).order_by('-fecha_registro')
+      return render(request, 'transacciones/listado_transacciones.html', locals())
+      
+   def post(self,request):
+      if 'agregar' in request.GET:
+         return self.agregar(request)
+      return HttpResponse("No posee los permisos para esta funcion",status=403)

@@ -3,6 +3,10 @@
 {% block titulo %}
 	Ver cliente {{cliente}}
 {% endblock titulo %}
+{% block css %}
+	<link href="/static/assets/libs/jquery-datatables/css/dataTables.bootstrap.css" rel="stylesheet" type="text/css" />
+	<link href="/static/assets/libs/jquery-datatables/extensions/TableTools/css/dataTables.tableTools.css" rel="stylesheet" type="text/css" />
+{% endblock css %}
 {% block contenido %}
 	<ol class="breadcrumb">
 	  <li><a href="/">bancos</a></li>
@@ -96,23 +100,38 @@
 			<h2><strong>Historial de transacciones</strong></h2>
 		</div>
 		<div class="widget-content">	
-			{% if not cliente.get_transacciones %}
+			{% if not cliente.get_historial_transacciones %}
 				<div class="alert alert-info">
 					<strong><i class="fa fa-info-circle"></i> Atención!. </strong>No se han registrado transacciones para este cliente
 				</div>
 			{% else %}
-				<table id="tabla_cuentas_clientes" class="table table-bordered table-condensed">
+				<table id="tabla_cuentas_clientes" class="table table-bordered table-condensed datatable">
 					<thead>
 						<tr>
-							<th>Tipo de cuenta</th>
-							<th>Número cuenta</th>
-							<th>Fecha cuenta</th>
-							<th>Número Tarjeta débito</th>
-							<th>Fecha Tarjeta</th>
-							<th>Usuario registro</th>
-							<th>Saldo</th>
+							<th>No.</th>
+							<th>Fecha</th>
+							<th>Tipo</th>
+							<th>Valor</th>
+							<th>Cuenta</th>
+							<th>Cuenta Destino</th>
+							<th>Usuario registró</th>
 						</tr>
 					</thead>
+					<tbody>
+						{% for transaccion in cliente.get_historial_transacciones %}
+							<tr>
+								<td>{{transaccion.id}}</td>
+								<td>{{transaccion.fecha_registro}}</td>
+								<td>{{transaccion.get_tipo_display}}</td>
+								<td class="right">{{transaccion.valor|intcomma}}</td>
+								<td>{{transaccion.cuenta.numero_cuenta}}</td>
+								<td>
+									{{transaccion.cuenta_destino.numero_cuenta|default:""}}
+								</td>
+								<td>{{transaccion.usuario_registro}}</td>
+							</tr>
+						{% endfor %}
+					</tbody>
 				</table>
 			{% endif %}
 		</div>
@@ -120,7 +139,38 @@
 {% endblock contenido %}
 
 {% block js %}
+	<script src="/static/assets/libs/jquery-datatables/js/jquery.dataTables.min.js"></script>
+	<script src="/static/assets/libs/jquery-datatables/js/dataTables.bootstrap.js"></script>
+	<script src="/static/assets/libs/jquery-datatables/extensions/TableTools/js/dataTables.tableTools.min.js"></script>
 	<script type="text/javascript">
 		$("#link_bancos").addClass('active');
+
+		var configuracion_datatables= {"language": {
+	            "emptyTable":     "No hay registros",
+	            "info":           "Mostrando _START_ a _END_ de _TOTAL_ registros",
+	            "infoEmpty":      "Mostrando 0 a 0 de 0 registros",
+	            "infoFiltered":   "(Filtrado de _MAX_ de los registros totales)",
+	            "infoPostFix":    "",
+	            "thousands":      ",",
+	            "lengthMenu":     "Mostrando _MENU_ registros",
+	            "loadingRecords": "Cargando...",
+	            "processing":     "Procesando...",
+	            "search":         "Buscar:",
+	            "zeroRecords":    "No se encontraron resultados",
+	            "paginate": {
+	                "first":      "Primero",
+	                "last":       "Último",
+	                "next":       "Siguiente",
+	                "previous":   "Anterior"
+	            },
+	            "aria": {
+	                "sortAscending":  ": activate to sort column ascending",
+	                "sortDescending": ": activate to sort column descending"
+	            }
+	        },
+	        "order":[[0,"desc"]]
+	    	};
+
+		var tabla_bancos = $(".datatable").DataTable(configuracion_datatables);
 	</script>
 {% endblock js %}

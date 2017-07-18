@@ -1,0 +1,103 @@
+{% extends "layout.html" %}
+{% load humanize %}
+{% block titulo %}
+	Transacciones
+{% endblock titulo %}
+{% block css %}
+	<link href="/static/assets/libs/jquery-datatables/css/dataTables.bootstrap.css" rel="stylesheet" type="text/css" />
+	<link href="/static/assets/libs/jquery-datatables/extensions/TableTools/css/dataTables.tableTools.css" rel="stylesheet" type="text/css" />
+{% endblock css %}
+{% block contenido %}
+	<div class="page-heading">
+		<h1>
+			<i class="fa fa-exchange" aria-hidden="true"></i> Transacciones
+			{% if perms.banco.add_transaccion %}
+				<a href="{% url 'transacciones' %}?agregar" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Agregar nueva transacción</a>
+			{% endif %}
+		</h1>
+	</div>
+
+	<div class="widget">
+		<div class="widget-header">
+			<h2><strong>Listado transacciones registradas</strong></h2>
+		</div>
+		<div class="widget-content">
+			<div class="table-responsive">
+				<table class="table table-bordered table-condensed datatable">
+					<thead>
+						<tr>
+							<th>No.</th>
+							<th>Fecha</th>
+							<th>Banco</th>
+							<th>Tipo</th>
+							<th>Valor</th>
+							<th>Cuenta</th>
+							<th>Cuenta Destino</th>
+							<th>Usuario registró</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for transaccion in transacciones %}
+							<tr>
+								<td>{{transaccion.id}}</td>
+								<td>{{transaccion.fecha_registro}}</td>
+								<td>
+									<a href="{% url 'clientes' %}?banco={{transaccion.banco_id}}" target="_blank"><i class="fa fa-external-link"></i> {{transaccion.banco}}</a>
+								</td>
+								<td>{{transaccion.get_tipo_display}}</td>
+								<td class="right">{{transaccion.valor|intcomma}}</td>
+								<td>
+									<a href="{% url 'clientes' %}?banco={{transaccion.banco_id}}&ver_cliente={{transaccion.cuenta.cliente_id}}" target="_blank"><i class="fa fa-external-link"></i> {{transaccion.cuenta}}</a>
+								</td>
+								<td>
+									{% if transaccion.cuenta_destino %}
+										<a href="{% url 'clientes' %}?banco={{transaccion.banco_id}}&ver_cliente={{transaccion.cuenta_destino.cliente_id}}" target="_blank"><i class="fa fa-external-link"></i> {{transaccion.cuenta_destino}}</a>
+									{% endif %}
+								</td>
+								<td>{{transaccion.usuario_registro}}</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+{% endblock contenido %}
+{% block js %}
+	<script src="/static/assets/libs/jquery-datatables/js/jquery.dataTables.min.js"></script>
+	<script src="/static/assets/libs/jquery-datatables/js/dataTables.bootstrap.js"></script>
+	<script src="/static/assets/libs/jquery-datatables/extensions/TableTools/js/dataTables.tableTools.min.js"></script>
+	<script type="text/javascript">
+		$("#link_transacciones").addClass('active');
+
+		var configuracion_datatables= {"language": {
+	            "emptyTable":     "No hay registros",
+	            "info":           "Mostrando _START_ a _END_ de _TOTAL_ registros",
+	            "infoEmpty":      "Mostrando 0 a 0 de 0 registros",
+	            "infoFiltered":   "(Filtrado de _MAX_ de los registros totales)",
+	            "infoPostFix":    "",
+	            "thousands":      ",",
+	            "lengthMenu":     "Mostrando _MENU_ registros",
+	            "loadingRecords": "Cargando...",
+	            "processing":     "Procesando...",
+	            "search":         "Buscar:",
+	            "zeroRecords":    "No se encontraron resultados",
+	            "paginate": {
+	                "first":      "Primero",
+	                "last":       "Último",
+	                "next":       "Siguiente",
+	                "previous":   "Anterior"
+	            },
+	            "aria": {
+	                "sortAscending":  ": activate to sort column ascending",
+	                "sortDescending": ": activate to sort column descending"
+	            }
+	        },
+	        "order":[[0,"desc"]]
+	    	};
+
+		
+		var tabla_bancos = $(".datatable").DataTable(configuracion_datatables);
+
+	</script>
+{% endblock js %}	

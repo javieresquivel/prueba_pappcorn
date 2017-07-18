@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 from usuarios.models import Usuario
+from django.db.models import Sum
 
 class ModeloBase(models.Model):
 
@@ -45,6 +46,12 @@ class Cliente(ModeloBase):
    def get_cuentas(self):
       return self.cuenta_set.filter(estado_registro=True)
 
+   def get_historial_transacciones(self):
+      directas = list(Transaccion.objects.filter(cuenta__cliente=self))
+      indirectas = list(Transaccion.objects.filter(cuenta_destino__cliente=self))
+      directas.extend(indirectas)
+      return directas
+
    def __unicode__(self):
       return unicode(self.nombre)
 
@@ -61,6 +68,15 @@ class Cuenta(ModeloBase):
    cliente = models.ForeignKey(Cliente)
    tipo = models.SmallIntegerField(choices=TIPOS_DE_CUENTAS,default=AHORROS)
    numero_cuenta = models.CharField(max_length=30)
+
+   def get_saldo(self):
+      # entradas 
+      valor = Transaccion.objects.filter(cuenta=self,tipo=Transaccion.CONSIGNACION).aggregate(Sum('valor'))['valor__sum'] or 0
+      valor += Transaccion.objects.filter(cuenta_destino=self,tipo=Transaccion.TRANSFERENCIA).aggregate(Sum('valor'))['valor__sum'] or 0
+      # salidas
+      valor -= Transaccion.objects.filter(cuenta=self,tipo=Transaccion.RETIRO).aggregate(Sum('valor'))['valor__sum'] or 0
+      valor -= Transaccion.objects.filter(cuenta=self,tipo=Transaccion.TRANSFERENCIA).aggregate(Sum('valor'))['valor__sum'] or 0
+      return round(valor,2)
 
    def get_tarjeta_debito(self):
       tarjeta = self.tarjetadebito_set.filter(estado_registro=True).order_by('-fecha_registro')
@@ -89,6 +105,7 @@ class Transaccion(ModeloBase):
    tipo = models.SmallIntegerField(choices=TIPOS_TRANSACCION)
    cuenta = models.ForeignKey(Cuenta,related_name='cuenta')
    cuenta_destino = models.ForeignKey(Cuenta,related_name='cuenta_destino',null=True,blank=True)
+   valor = models.FloatField()
 
    def __unicode__(self):
       return unicode(self.get_tipo_display())+" - "+unicode(self.cuenta)
