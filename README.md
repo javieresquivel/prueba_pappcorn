@@ -9,7 +9,9 @@ Desde la terminal digitar los siguientes comandos
 pip install requirements.txt
 
 cd aplicacion_bancaria/
+
 python manage.py createsuperuser # Seguir las instrucciones para crear usuario
+
 python manage.py runserver
 
 Entrar con el navegador http://localhost:8000
