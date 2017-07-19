@@ -2,13 +2,14 @@
 [Prueba Tech Maker - Javier Alejandro Esquivel]
 
 Requisitos:
-Python 2.7
+Tener instalado Python 2.7
+
+Desde la terminal digitar los siguientes comandos
 
 pip install requirements.txt
 
 cd aplicacion_bancaria/
-python manage.py migrate
-python manage.py createsuperuser # Seguir las instrucciones
+python manage.py createsuperuser # Seguir las instrucciones para crear usuario
 python manage.py runserver
 
 Entrar con el navegador http://localhost:8000
