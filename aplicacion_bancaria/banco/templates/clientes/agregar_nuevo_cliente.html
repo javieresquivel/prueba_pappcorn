@@ -3,11 +3,18 @@
 {% block titulo %}
 	Clientes de {{banco}}
 {% endblock titulo %}
+{% block css %}
+	<link href="/static/assets/libs/jqueryui/ui-lightness/jquery-ui-1.10.4.custom.min.css" rel="stylesheet" />
+{% endblock css %}
 {% block contenido %}
 	<ol class="breadcrumb">
 	  <li><a href="/">bancos</a></li>
 	  <li><a href="{% url 'clientes' %}?banco={{banco.id}}">Clientes de {{banco}}</a></li>
-	  <li class="active">Agregar nuevo cliente</li>
+	  {% if cliente %}
+	  	<li class="active">Agregar nuevo cliente</li>
+	  {% else %}
+	  	<li class="active">Editar cliente {{cliente}}</li>
+	  {% endif %}
 	</ol>
 
 	<div class="page-heading">
@@ -46,7 +53,7 @@
 					</div>
 					<div class="col-sm-3">
 						<label for="{{formulario.fecha_nacimiento.id_for_label}}">{{formulario.fecha_nacimiento.label_tag}}*</label>
-						{{formulario.fecha_nacimiento|addclass:"form-control"}}
+						{{formulario.fecha_nacimiento|addclass:"form-control datepicker"}}
 					</div>
 				</div>
 				<br>
@@ -106,18 +113,34 @@
 {% endblock contenido %}
 
 {% block js %}
+	<script src="/static/assets/libs/jqueryui/jquery-ui-1.10.4.custom.min.js"></script>
 	<script type="text/javascript">
-		var diccionario_cuentas = JSON.parse($("input[name=cuentas]").val() || "[]");
+	    $(".datepicker").datepicker({
+	    	dateFormat:"dd/mm/yy",
+	    	changeYear:true,
+	    	changeMonth:true,
+	    });
+
+		{% if request.method == 'GET' and cliente %}
+			var diccionario_cuentas = {{cliente.get_json_cuentas|safe}};
+		{% else %}
+			var diccionario_cuentas = JSON.parse($("input[name=cuentas]").val() || "[]");
+		{% endif %}
+
 
 		function dibujar_cuentas_registradas() {
 			var html = "";
 			for (var i = 0; i < diccionario_cuentas.length; i++) {
-				html += '<tr>';
-				html += '<td>'+diccionario_cuentas[i]["nombre_tipo_cuenta"]+'</td>';
-				html += '<td>'+diccionario_cuentas[i]["numero_cuenta"]+'</td>';
-				html += '<td>'+diccionario_cuentas[i]["numero_tarjeta"]+'</td>';
-				html += '<td><a data-eliminar-cuenta="'+i+'" class="btn btn-sm btn-danger"><i class="fa fa-times"></i> Eliminar cuenta</a></td>';
-				html += '</tr>';
+				if(!(diccionario_cuentas[i]["eliminada"])){
+					html += '<tr>';
+					html += '<td>'+diccionario_cuentas[i]["nombre_tipo_cuenta"]+'</td>';
+					html += '<td>'+diccionario_cuentas[i]["numero_cuenta"]+'</td>';
+					html += '<td>'+diccionario_cuentas[i]["numero_tarjeta"]+'</td>';
+					html += '<td>';
+					html += '<a data-eliminar-cuenta="'+i+'" class="btn btn-sm btn-danger"><i class="fa fa-times"></i> Eliminar cuenta</a>';
+					html += '</td>';
+					html += '</tr>';
+				}
 			}
 			$("#tabla_cuentas_clientes tbody").html(html);
 			$("#tabla_cuentas_clientes tfoot input").val("");
@@ -127,9 +150,15 @@
 		dibujar_cuentas_registradas();
 
 		$(document).on('click', 'a[data-eliminar-cuenta]', function(event) {
-			var cuenta = $(this).attr('data-eliminar-cuenta');
-			diccionario_cuentas.splice(parseInt(cuenta),1);
-			dibujar_cuentas_registradas();
+			if(confirm('¿Desea eliminar esta cuenta?')){
+				var cuenta = $(this).attr('data-eliminar-cuenta');
+				if(diccionario_cuentas[cuenta]["id"]){
+					diccionario_cuentas[cuenta]["eliminada"] = true;
+				}else{
+					diccionario_cuentas.splice(parseInt(cuenta),1);
+				}
+				dibujar_cuentas_registradas();
+			}
 		});
 
 		$("#agregar_cuenta_cliente").on('click', function(event) {

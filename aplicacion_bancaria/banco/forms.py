@@ -25,23 +25,31 @@ class ClienteForm(forms.ModelForm):
    def clean_cuentas(self):
       cuentas = json.loads(self.cleaned_data.get("cuentas") or "[]")
       info = []
+      eliminar = []
       for c in cuentas:
-         tipo_cuenta = int(c["tipo_cuenta"])
-         cuenta = c["numero_cuenta"].upper()
-         tarjeta = c["numero_tarjeta"].upper()
+         if 'id' in c:
+            if "eliminada" in c:
+               eliminar.append(Cuenta.objects.get(pk=c["id"]))
+         else:
+            tipo_cuenta = int(c["tipo_cuenta"])
+            cuenta = c["numero_cuenta"].upper()
+            tarjeta = c["numero_tarjeta"].upper()
 
-         existe = Cuenta.objects.filter(estado_registro=True,numero_cuenta=cuenta,tipo=tipo_cuenta,cliente__banco=self.banco)
-         if existe:
-            raise forms.ValidationError("La cuenta numero "+cuenta+" ya se encuentra registrada.")
-         existe = TarjetaDebito.objects.filter(estado_registro=True,numero=tarjeta,cuenta__cliente__banco=self.banco)
-         if existe:
-            raise forms.ValidationError("La tarjeta numero "+tarjeta+" ya se encuentra registrada.")
+            existe = Cuenta.objects.filter(estado_registro=True,numero_cuenta=cuenta,tipo=tipo_cuenta,cliente__banco=self.banco)
+            if existe:
+               raise forms.ValidationError("La cuenta numero "+cuenta+" ya se encuentra registrada.")
+            existe = TarjetaDebito.objects.filter(estado_registro=True,numero=tarjeta,cuenta__cliente__banco=self.banco)
+            if existe:
+               raise forms.ValidationError("La tarjeta numero "+tarjeta+" ya se encuentra registrada.")
 
-         info.append({
-            "cuenta": Cuenta(tipo=tipo_cuenta,numero_cuenta= cuenta),
-            "tarjeta": TarjetaDebito(numero=tarjeta)
-         })
+            info.append({
+               "cuenta": Cuenta(tipo=tipo_cuenta,numero_cuenta= cuenta),
+               "tarjeta": TarjetaDebito(numero=tarjeta)
+            })
+      if self.instance.id:
+         return info, eliminar
       return info
+
 
    class Meta:
       model = Cliente
@@ -74,4 +82,12 @@ class TransaccionForm(forms.ModelForm):
    class Meta:
       model = Transaccion
       exclude = ('usuario_registro','fecha_registro','estado_registro',)
+    
+class TarjetaDebitoForm(forms.ModelForm):
+   class Meta:
+      model = TarjetaDebito
+      exclude = ('usuario_registro','fecha_registro','estado_registro')
+      widgets = {
+         "cuenta": forms.HiddenInput,
+      }
     

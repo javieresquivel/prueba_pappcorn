@@ -55,37 +55,13 @@
         <div class="container">
             <div class="navbar-collapse2">
                 <ul class="nav navbar-nav navbar-right top-navbar">
-                   <li class="dropdown iconify hide-phone">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-globe"></i> <!--<span class="label label-danger absolute">4</span>--></a>
-                        <ul class="dropdown-menu dropdown-message">
-                            <li class="dropdown-header notif-header"><i class="icon-bell-2"></i> Nuevas notificaciones<a class="pull-right" href="#"><i class="fa fa-cog"></i></a></li>
-                            <!--<li class="unread">
-                                <a href="#">
-                                    <p><strong>John Doe</strong> Uploaded a photo <strong>&#34;DSC000254.jpg&#34;</strong>
-                                        <br /><i>2 minutes ago</i>
-                                    </p>
-                                </a>
-                            </li>-->
-                            <li class="dropdown-footer">
-                                <div class="btn-group btn-group-justified">
-                                    <div class="btn-group">
-                                        <a href="#" class="btn btn-sm btn-danger"><i class="icon-trash-3"></i> Limpiar</a>
-                                    </div>
-                                    <div class="btn-group">
-                                        <a href="#" class="btn btn-sm btn-success">Ver todas <i class="icon-right-open-2"></i></a>
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
-                    </li>
-                   
                     <li class="dropdown iconify hide-phone"><a href="#" onclick="javascript:toggle_fullscreen()"><i class="icon-resize-full-2"></i></a></li>
                     <li class="dropdown topbar-profile">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown"> <strong>{{usuario_sistema.username}}</strong> <i class="fa fa-caret-down"></i></a>
                         <ul class="dropdown-menu">
-                            <li><a href="#">Cambiar contraseña</a></li>
+                            <!--<li><a href="#">Cambiar contraseña</a></li>-->
                             <li class="divider"></li>
-                            <li><a class="md-trigger" data-modal="logout-modal"><i class="icon-logout-1"></i> Cerrar sesión</a></li>
+                            <li><a href="{% url 'logout' %}"><i class="icon-logout-1"></i> Cerrar sesión</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -114,7 +90,7 @@
                         <div class="profile-text">Bienvenido <b>{{usuario_sistema.get_full_name}}</b></div>
                         <div class="profile-buttons">
                           <!--<a href="javascript:;"><i class="fa fa-envelope-o pulse"></i></a>-->
-                          <a class="md-trigger" data-modal="logout-modal"><i class="fa fa-power-off text-red-1"></i></a>
+                          <a href="{% url 'logout' %}"><i class="fa fa-power-off text-red-1"></i></a>
                         </div>
                     </div>
                 </div>

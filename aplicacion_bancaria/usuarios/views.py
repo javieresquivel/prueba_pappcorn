@@ -33,4 +33,4 @@ class CerrarSesion(View):
 
 	def get(self,request):
 		logout(request)
-		return HttpResponseRedirect("/login")
+		return HttpResponseRedirect("/")

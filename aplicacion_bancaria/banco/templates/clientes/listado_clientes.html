@@ -54,7 +54,12 @@
 								<td>{{cliente.observaciones|default:""}}</td>
 								<td>{{cliente.fecha_registro}}</td>
 								<td>{{cliente.usuario_registro}}</td>
-								<td></td>
+								<td style="width:140px">
+									<div class="btn-group btn-group-xs">
+										<a href="{% url 'clientes' %}?banco={{banco.id}}&editar={{cliente.id}}" class="btn btn-default"><i class="fa fa-edit"></i> Editar</a>
+										<a data-eliminar-cliente="{{cliente.id}}" data-nombre="{{cliente}}" class="btn btn-danger"><i class="fa fa-times"></i> Eliminar</a>
+									</div>
+								</td>
 							</tr>
 						{% endfor %}
 					</tbody>
@@ -62,6 +67,25 @@
 			</div>
 		</div>
 	</div>
+
+	<div id="modal_eliminar_cliente" class="modal fade" tabindex="-1" role="dialog">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Eliminar cliente</h4>
+				</div>
+				<div class="modal-body">
+					¿Está seguro que desea eliminar el cliente <strong></strong>?
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+					<a href="" class="btn btn-danger"><i class="fa fa-ban"></i> Si, eliminar</a>
+				</div>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+
 {% endblock contenido %}
 {% block js %}
 	<script src="/static/assets/libs/jquery-datatables/js/jquery.dataTables.min.js"></script>
@@ -69,6 +93,15 @@
 	<script src="/static/assets/libs/jquery-datatables/extensions/TableTools/js/dataTables.tableTools.min.js"></script>
 	<script type="text/javascript">
 		$("#link_bancos").addClass('active');
+
+		$(document).on('click', 'a[data-eliminar-cliente]', function(event) {
+			event.preventDefault();
+			var cliente = $(this).attr('data-eliminar-cliente');
+			var nombre = $(this).attr('data-nombre');
+			$("#modal_eliminar_cliente").modal("show");
+			$("#modal_eliminar_cliente .modal-body strong").html(nombre);
+			$("#modal_eliminar_cliente .modal-footer a").attr('href', '{% url "clientes" %}?banco={{banco.id}}&eliminar='+cliente);
+		});
 
 		var configuracion_datatables= {"language": {
 	            "emptyTable":     "No hay registros",

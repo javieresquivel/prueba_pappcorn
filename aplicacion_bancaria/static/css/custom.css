@@ -35,3 +35,17 @@
 .right{
     text-align: right;
 }
+
+.valor_negativo{
+    color: #d43f3a;
+    font-weight: bold;
+}
+
+.valor_positivo{
+    color: #4cae4c;
+    font-weight: bold;
+}
+
+.valor_neutro{
+    font-weight: bold
+}

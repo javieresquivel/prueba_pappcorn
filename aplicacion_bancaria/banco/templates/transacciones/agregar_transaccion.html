@@ -3,6 +3,9 @@
 {% block titulo %}
 	Agregar nueva transacción
 {% endblock titulo %}
+{% block css %}
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.7.0/chosen.min.css">
+{% endblock css %}
 {% block contenido %}
 	<div class="page-heading">
 		<h1>
@@ -60,8 +63,47 @@
 	</form>
 {% endblock contenido %}
 {% block js %}
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.7.0/chosen.jquery.min.js"></script>
 	<script type="text/javascript">
 		const TRANSFERENCIA = 1;
+
+		$("select").chosen({"width":'100%'});
+
+		window.onload = function() {
+			$("select[name=banco]").change();
+			$("select[name=tipo]").change();
+		};
+
+		$(document).on('change', 'select[name=banco]', function(event) {
+			var banco = $(this).val();
+			if(banco){
+				$.ajax({
+					url: '{% url "transacciones" %}',
+					type: 'POST',
+					dataType: 'json',
+					data: {'get_cuentas_banco': banco},
+					success:function(data) {
+						var data = data["info"];
+						var html ='<option value="">--------</option>';
+						for (var i = 0; i < data.length; i++) {
+							html += '<option value="'+data[i]["id"]+'">'+data[i]["nombre"]+'</option>';
+						}
+						$("select[name=cuenta]").html(html);
+						$("select[name=cuenta_destino]").html(html);
+						$("select").trigger('chosen:updated');
+					}
+				});
+				
+			}else{
+				//$("select[name=cuenta]").val("");
+				//$("select[name=cuenta_destino]").val("");
+				$("select[name=cuenta]").html("");
+				$("select[name=cuenta_destino]").html("");
+				$("select").trigger('chosen:updated');
+			}
+		});		
+
+		
 
 		$(document).on('change', 'select[name=tipo]', function(event) {
 			var tipo = parseInt($(this).val() || "0");
@@ -71,7 +113,7 @@
 			}
 		});
 
-		$("select[name=tipo]").change();
+		
 
 		$("#link_transacciones").addClass('active');
 	</script>

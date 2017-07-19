@@ -1,5 +1,7 @@
 {% extends "layout.html" %}
 {% load humanize %}
+{% load filtros_banco %}
+{% load filtros_usuarios %}
 {% block titulo %}
 	Ver cliente {{cliente}}
 {% endblock titulo %}
@@ -22,7 +24,12 @@
 
 	<div class="widget">
 		<div class="widget-header">
-			<h2><strong>Detalles</strong></h2>
+			<h2>
+				<strong>Detalles</strong> 
+				{% if not cliente.estado_registro %}
+					<label class="label label-danger">Este cliente ya no se encuentra activo</label>
+				{% endif %}
+			</h2>
 		</div>
 		<div class="widget-content padding">
 			<div class="row">
@@ -84,7 +91,9 @@
 							<td>{{cuenta.get_tipo_display}}</td>
 							<td>{{cuenta.numero_cuenta}}</td>
 							<td>{{cuenta.fecha_registro}}</td>
-							<td>{{cuenta.get_tarjeta_debito.numero}}</td>
+							<td>
+								{{cuenta.get_tarjeta_debito.numero}} <a data-editar-tarjeta="{{cuenta.id}}" class="btn btn-primary btn-xs pull-right"><i class="fa fa-edit"></i> Cambiar</a>
+							</td>
 							<td>{{cuenta.get_tarjeta_debito.fecha_registro}}</td>
 							<td>{{cuenta.usuario_registro}}</td>
 							<td style="text-align:right">$ {{cuenta.get_saldo|default:"0"|intcomma}}</td>
@@ -123,7 +132,7 @@
 								<td>{{transaccion.id}}</td>
 								<td>{{transaccion.fecha_registro}}</td>
 								<td>{{transaccion.get_tipo_display}}</td>
-								<td class="right">{{transaccion.valor|intcomma}}</td>
+								<td class="right {{transaccion|get_clase:cliente}}">{{transaccion.valor|intcomma}}</td>
 								<td>{{transaccion.cuenta.numero_cuenta}}</td>
 								<td>
 									{{transaccion.cuenta_destino.numero_cuenta|default:""}}
@@ -136,6 +145,35 @@
 			{% endif %}
 		</div>
 	</div>
+
+	<form action="" method="post">
+		{% csrf_token %}
+		<div id="modal_agregar_nueva_tarjeta" class="modal fade" tabindex="-1" role="dialog">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title">Nueva tarjeta debito</h4>
+					</div>
+					<div class="modal-body">
+						{% if formulario.errors %}
+							<div class="alert alert-danger">
+								<strong><i class="fa fa-info-circle"></i> Atención!. </strong>Se han detectado los siguientes inconvenientes: <br>
+								{{formulario.errors}}
+							</div>
+						{% endif %}
+						{{formulario.cuenta}}
+						<label>Numero tarjeta</label>
+						{{formulario.numero|addclass:"form-control"}}
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+						<button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Agregar nueva tarjeta</button>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+	</form>
 {% endblock contenido %}
 
 {% block js %}
@@ -143,6 +181,18 @@
 	<script src="/static/assets/libs/jquery-datatables/js/dataTables.bootstrap.js"></script>
 	<script src="/static/assets/libs/jquery-datatables/extensions/TableTools/js/dataTables.tableTools.min.js"></script>
 	<script type="text/javascript">
+
+		{% if formulario.errors %}
+			$("#modal_agregar_nueva_tarjeta").modal("show");
+		{% endif %}
+
+		$(document).on('click', '[data-editar-tarjeta]', function(event) {
+			event.preventDefault();
+			var cuenta = $(this).attr('data-editar-tarjeta');
+			$("#modal_agregar_nueva_tarjeta input[name=cuenta]").val(cuenta);
+			$("#modal_agregar_nueva_tarjeta").modal("show");
+		});
+
 		$("#link_bancos").addClass('active');
 
 		var configuracion_datatables= {"language": {

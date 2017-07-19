@@ -45,7 +45,7 @@
 									<a href="{% url 'clientes' %}?banco={{transaccion.banco_id}}" target="_blank"><i class="fa fa-external-link"></i> {{transaccion.banco}}</a>
 								</td>
 								<td>{{transaccion.get_tipo_display}}</td>
-								<td class="right">{{transaccion.valor|intcomma}}</td>
+								<td class="right {{transaccion.get_clase}}">{{transaccion.valor|intcomma}}</td>
 								<td>
 									<a href="{% url 'clientes' %}?banco={{transaccion.banco_id}}&ver_cliente={{transaccion.cuenta.cliente_id}}" target="_blank"><i class="fa fa-external-link"></i> {{transaccion.cuenta}}</a>
 								</td>
